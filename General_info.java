@@ -1,7 +1,18 @@
 
 import java.util.*;
 import java.sql.*;
-
+class hospital_node{
+	Hospital h;
+	int dist;
+	hospital_node next;
+	int reference;
+	hospital_node(int num,Hospital hosp){
+		next =null;
+		this.reference = num; // reference variable to get index of the node in the array
+		this.h = hosp;
+		this.dist =0;
+	}
+}
 public class General_info{
 	 Scanner sc = new Scanner(System.in);
 	 static final String JDBC_DRIVER = "com.mysql.cj.jdbc.Driver";
@@ -15,7 +26,7 @@ public class General_info{
 	 int[][] adjMat;
 	 int n;
 	 Hospital ref []; //Array to remember index numbers
-
+	 ArrayList<hospital_node> head = new ArrayList<hospital_node>(); //adjacency list
 	 
 	 void establish_connection(){
 		 try {
@@ -30,6 +41,56 @@ public class General_info{
 		     e.printStackTrace();
 		 }
 	 }
+	void createUsingAdjList()
+		{   extract_allhospital();
+			int i =0;
+			for(i=0;i<n;i++) {
+				hospital_node h = new hospital_node(i,all_hospitals.get(i));
+				head.add(i, h); 
+				
+			}
+			System.out.println("Enter number of lanes in the society:");
+		
+			try {
+				PreparedStatement preparedStmt1;
+				
+				String query = "select * from Hospital_edges";
+				preparedStmt1 = con.prepareStatement(query);
+				ResultSet rs = preparedStmt1.executeQuery(query);
+				while(rs.next()) {
+					 int h1_code = rs.getInt("Hospital1_code");
+					 int h2_code = rs.getInt("Hospital2_code");
+					 int dist= rs.getInt("distance");
+					 insert(h1_code,h2_code,dist);
+					 insert(h2_code,h1_code,dist);
+				 }
+			}
+			 catch(SQLException e) {
+			     System.out.println("Not found");
+			     e.printStackTrace();
+			 }
+			
+		}
+	 void insert(int h1 , int h2,int distance) {
+			int i =0;
+			int ref2=0,ref1=0;
+			
+		    for(i=0;i<n;i++) {
+		    	if (head.get(i).h.getHospitalCode()==h1) {
+		    		ref1 = i;
+		    	}
+		    	else if (head.get(i).h.getHospitalCode()==h1) {
+		    		ref2 = i;
+		    	}
+		    }
+		    hospital_node temp = new hospital_node(ref2,head.get(ref2).h);
+		    temp.dist = distance;
+		    hospital_node ptr = head.get(i);
+		    while(ptr.next!=null) {
+		    	ptr= ptr.next;
+		    }
+		    ptr.next = temp;
+		}
 	 void extract_allhospital() {
 		 try {
 			 String query = "select * from Hospital";
