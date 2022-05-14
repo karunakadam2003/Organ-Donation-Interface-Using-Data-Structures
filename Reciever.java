@@ -1,8 +1,6 @@
-package com.model;
-
 import java.util.ArrayList;
 
-public class Reciever {
+public class Receiver {
 
 	private String ReceiverName;
 	private String ReceiverBloodGroup;
@@ -13,18 +11,23 @@ public class Reciever {
 	private long contactNum;
 	private int Emergency;
 	private boolean approvedReceiver;
-	public Reciever(String receiverName, String receiverBloodGroup, String birthDate, char gender, double weight,
-			Area areaOfReceiver, long contactNum, int emergency, boolean approvedReceiver) {
+	private String Organ;
+	private String enrolled_hosp;
+	public Receiver(String receiverName, String receiverBloodGroup, String birthDate, char gender, double weight,
+			String hosp, long contactNum, int emergency,String Org) {
 		super();
 		ReceiverName = receiverName;
 		ReceiverBloodGroup = receiverBloodGroup;
 		this.birthDate = birthDate;
 		this.gender = gender;
 		this.weight = weight;
-		this.areaOfReceiver = areaOfReceiver;
+		this.enrolled_hosp = hosp;
 		this.contactNum = contactNum;
 		Emergency = emergency;
-		this.approvedReceiver = approvedReceiver;
+		this.Organ = Org;
+	}
+	public String gethospitalName() {
+		return enrolled_hosp;
 	}
 	public String getReceiverName() {
 		return ReceiverName;
