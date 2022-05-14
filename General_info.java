@@ -22,13 +22,15 @@ public class General_info{
 	 Connection con;
 	 Set <Integer> hospitals = new HashSet<Integer>();
 	 ArrayList<Hospital> all_hospitals = new ArrayList<Hospital>();
+	 
 	 ArrayList<Integer> elligible_hospitals = new ArrayList<Integer>(); //list of hospital codes having at least one receiver
 	 int[][] adjMat;
 	 int n;
 	 Hospital ref []; //Array to remember index numbers
-	 ArrayList<hospital_node> head = new ArrayList<hospital_node>(); //adjacency list
+	 ArrayList<hospital_node> head = new ArrayList<hospital_node>();
+
 	 
-	 void establish_connection(){
+	 public void establish_connection(){
 		 try {
 		   Class.forName(JDBC_DRIVER);
 		   con=DriverManager.getConnection(DB_URL,USER,PASS);
@@ -41,7 +43,7 @@ public class General_info{
 		     e.printStackTrace();
 		 }
 	 }
-	void createUsingAdjList()
+	 void createUsingAdjList()
 		{   extract_allhospital();
 			int i =0;
 			for(i=0;i<n;i++) {
@@ -168,6 +170,38 @@ public class General_info{
 			}
 		}
 	   
+	   void area_hospitals(Donor d) { //pass donor area to this function
+		   try {
+				 /*String q = "select areaCode from Area where areaName = (?)";
+				 PreparedStatement preparedStmt1;
+				 preparedStmt1 = con.prepareStatement(q);
+				 preparedStmt1.setString(1, d.getAreaOfDonor().getAreaName());
+				 */
+			     String query = "select * from Hospital where areaCode = ?";
+			     PreparedStatement preparedStmt1;
+				 preparedStmt1 = con.prepareStatement(query);
+				 preparedStmt1.setInt(1, d.getAreaOfDonor().getAreaCode());
+				 
+				 ResultSet rs = preparedStmt1.executeQuery(query);
+
+				 while(rs.next()) {
+					 int h_code = rs.getInt("hospitalCode");
+					 String h_name = rs.getString("hospitalName");
+					 int area_code = rs.getInt("areaCode");
+					 int city_code = rs.getInt("cityCode");
+					 Hospital h = new Hospital(h_code,h_name,area_code,city_code);
+					 d.areawise_hospitals.add(h);
+				 }
+				 
+			 }
+			 catch(SQLException e) {
+			     System.out.println("Not found");
+			     e.printStackTrace();
+			 }
+	   }
+	   //for 
+	   
+	   
 	   void elligible_hospitals() { //hospitals having at least one receiver
 		   try {
 				 String query = "select count(Hospital_reg),hospital_reg from Receiver group by Hospital_reg";
@@ -185,4 +219,32 @@ public class General_info{
 			     e.printStackTrace();
 			 }
 	   }
+	   int[] nearestHospitalList(Hospital h){
+	        int[] distance = new int[n];
+	        for (int i = 0; i < n; i++) {
+	            distance[i] = Integer.MAX_VALUE;
+	        }
+	        PriorityQueue<hospital_node> pq = new PriorityQueue<>(
+	                (v1, v2) -> v1.dist - v2.dist);
+	        pq.add(new hospital_node(0,h));
+	        while (pq.size() > 0) {
+	            hospital_node current = pq.poll();
+
+	            for (int n = 0; n< head.size(); n++) {
+	                if (distance[current.reference]
+	                        + head.get(n).dist
+	                        < distance[head.get(n).reference]) {
+	                    distance[head.get(n).reference]
+	                            = head.get(n).dist
+	                            + distance[current.reference];
+	                    pq.add(new hospital_node(
+	                            head.get(n).reference,
+	                            head.get(n).h));
+	                }
+	            }
+
+	        }
+	        return distance;
+	    }
+
 }

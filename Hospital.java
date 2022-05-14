@@ -1,15 +1,12 @@
-package com.model;
-
-
 import java.util.PriorityQueue;
 
 public class Hospital {
 	private String hospitalName;
-	private Area loc;
 	private int citycode;
 	private int areacode;
+	private Area loc;
 	private int hospitalcode;
-	PriorityQueue<Reciever> pq;
+	PriorityQueue<Receiver> pq;
 	Hospital (int code ,String hospitalName,int a_code,int c_code){
 		this.hospitalcode = code;
 		this.hospitalName = hospitalName;
@@ -22,11 +19,11 @@ public class Hospital {
 		this.loc = loc;
 		this.pq = pq;
 	}
-	public int getHospitalCode() {
-		return hospitalcode;
-	}
 	public String getHospitalName() {
 		return hospitalName;
+	}
+	public int getHospitalCode() {
+		return hospitalcode;
 	}
 	public void setHospitalName(String hospitalName) {
 		this.hospitalName = hospitalName;
@@ -37,10 +34,10 @@ public class Hospital {
 	public void setLoc(Area loc) {
 		this.loc = loc;
 	}
-	public PriorityQueue<Reciever> getPq() {
+	public PriorityQueue<Receiver> getPq() {
 		return pq;
 	}
-	public void setPq(PriorityQueue<Reciever> pq) {
+	public void setPq(PriorityQueue<Receiver> pq) {
 		this.pq = pq;
 	}
 	
