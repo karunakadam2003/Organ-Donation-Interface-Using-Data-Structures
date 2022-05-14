@@ -1,26 +1,73 @@
-package com.model;
-
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Date;
 
 public class Donor {
+	
+	
+	static final String JDBC_DRIVER = "com.mysql.cj.jdbc.Driver";
+	static final String DB_URL = "jdbc:mysql://localhost:3306/OrganDonation";
+	static final String USER = "root";
+	static final String PASS = "priyanka2240";
+	Connection con;
+	
+	
 	private String donorName;
 	private String donorBloodGroup;
 	private String  birthDate;
 	private char gender;
 	private double weight;
 	private Area areaOfDonor;
+	private String organ;
 	private long contactNo;
-	
-	public Donor(String donorName, String donorBloodGroup, String birthDate, char gender, double weight,
+	ArrayList<Hospital> areawise_hospitals = new ArrayList<Hospital>();
+	public Donor(String donorName, String donorBloodGroup, String birthDate, char gender, double weight, String org,
 			Area areaOfDonor, long contactNo) {
 		this.donorName = donorName;
 		this.donorBloodGroup = donorBloodGroup;
 		this.birthDate = birthDate;
 		this.gender = gender;
 		this.weight = weight;
+		this.organ = org;
 		this.areaOfDonor = areaOfDonor;
 		this.contactNo = contactNo;
+		//this.area_hospitals();
+		
 	}
+	 void area_hospitals(Donor d) { //pass donor area to this function
+		   try {
+				 /*String q = "select areaCode from Area where areaName = (?)";
+				 PreparedStatement preparedStmt1;
+				 preparedStmt1 = con.prepareStatement(q);
+				 preparedStmt1.setString(1, d.getAreaOfDonor().getAreaName());
+				 */
+			     con=DriverManager.getConnection(DB_URL,USER,PASS);
+			     String query = "select * from Hospital where areaCode = ?";
+			     PreparedStatement preparedStmt1;
+				 preparedStmt1 = con.prepareStatement(query);
+				 preparedStmt1.setInt(1, d.getAreaOfDonor().getAreaCode());
+				 
+				 ResultSet rs = preparedStmt1.executeQuery(query);
+
+				 while(rs.next()) {
+					 int h_code = rs.getInt("hospitalCode");
+					 String h_name = rs.getString("hospitalName");
+					 int area_code = rs.getInt("areaCode");
+					 int city_code = rs.getInt("cityCode");
+					 Hospital h = new Hospital(h_code,h_name,area_code,city_code);
+					 d.areawise_hospitals.add(h);
+				 }
+				 
+			 }
+			 catch(SQLException e) {
+			     System.out.println("Not found");
+			     e.printStackTrace();
+			 }
+	   }
 	public String getDonorName() {
 		return donorName;
 	}
