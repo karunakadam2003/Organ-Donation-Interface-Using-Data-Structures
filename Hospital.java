@@ -1,15 +1,14 @@
-package com.model;
-
-
+import java.util.Comparator;
 import java.util.PriorityQueue;
-
+import java.util.*;
 public class Hospital {
 	private String hospitalName;
-	private Area loc;
 	private int citycode;
 	private int areacode;
+	private Area loc;
 	private int hospitalcode;
-	PriorityQueue<Reciever> pq;
+	ArrayList <Receiver> all_receivers = new ArrayList<Receiver>(); 
+	PriorityQueue<Receiver> pq;
 	Hospital (int code ,String hospitalName,int a_code,int c_code){
 		this.hospitalcode = code;
 		this.hospitalName = hospitalName;
@@ -22,11 +21,11 @@ public class Hospital {
 		this.loc = loc;
 		this.pq = pq;
 	}
-	public int getHospitalCode() {
-		return hospitalcode;
-	}
 	public String getHospitalName() {
 		return hospitalName;
+	}
+	public int getHospitalCode() {
+		return hospitalcode;
 	}
 	public void setHospitalName(String hospitalName) {
 		this.hospitalName = hospitalName;
@@ -37,12 +36,38 @@ public class Hospital {
 	public void setLoc(Area loc) {
 		this.loc = loc;
 	}
-	public PriorityQueue<Reciever> getPq() {
+	public PriorityQueue<Receiver> getPq() {
 		return pq;
 	}
-	public void setPq(PriorityQueue<Reciever> pq) {
+	public void setPq(PriorityQueue<Receiver> pq) {
 		this.pq = pq;
 	}
 	
+	 public PriorityQueue<Receiver> addToQueue(){
+	        ListIterator<Receiver> ReceiverIterator = this.all_receivers.listIterator();
+	        this.pq = new PriorityQueue<Receiver>(new ReceiverComparator());
+	        // Traversing elements
+	        while (ReceiverIterator.hasNext()) {
+	            Receiver r = ReceiverIterator.next();
+	            //System.out.println("Priority queue: "+r.getEmergency());
+	            pq.add(r);
+	            
+	        }
+	         return this.pq;
+	    }
+ 
+	 
+	class ReceiverComparator implements Comparator<Receiver>{
+	           @Override
+	            public int compare(Receiver s1, Receiver s2) {
+	   
+	                if (s1.getEmergency() > s2.getEmergency())
+	                    return -1;
+	                else if (s1.getEmergency() < s1.getEmergency())
+	                    return 1;
+	                                return 0;
+	                }
+	        	   
+	        }
+	}
 	
-}

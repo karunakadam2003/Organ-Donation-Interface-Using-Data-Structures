@@ -1,7 +1,4 @@
-package com.model;
-
-import java.util.ArrayList;
-
+import java.util.*;
 public class City {
 	private String cityname;
 	private int cityCode;

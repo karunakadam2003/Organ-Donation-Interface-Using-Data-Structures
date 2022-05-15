@@ -1,7 +1,5 @@
-package com.model;
 
 public class Area {
-
 	private String areaName;
 	private int areaCode;
 	public Area(String areaName, int areaCode) {
@@ -20,6 +18,4 @@ public class Area {
 	public void setAreaCode(int areaCode) {
 		this.areaCode = areaCode;
 	}
-	
-	
 }

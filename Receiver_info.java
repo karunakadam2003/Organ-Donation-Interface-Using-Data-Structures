@@ -1,3 +1,6 @@
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.util.Scanner;
 
 public class Receiver_info {
@@ -6,7 +9,7 @@ public class Receiver_info {
 	String receiverBloodGroup;
 	String birthDate;
 	char gender;
-	double weight;
+	float weight;
 	String organ;
 	String addr;
 	long contactNum;
@@ -15,16 +18,17 @@ public class Receiver_info {
 	Scanner sc=new Scanner(System.in);
 	Area user_r ;
 	String hosp_name;
-	
+	int hosp_code;
 	boolean valid_w = false;
 	boolean valid_age = false;
+	General_info g = new General_info();
 	void AcceptInfo()
 	{
 		boolean correct = false;
 		while(!correct) {
 			try {
-				System.out.println("Enter Name :");
-				receiverName=sc.next();
+				System.out.println("Enter your Name :");
+				receiverName=sc.nextLine();
 				if(receiverName.isEmpty()) {
 					throw new User_exception("Please enter valid name");
 				}
@@ -108,7 +112,7 @@ public class Receiver_info {
 				try {
 					System.out.println("Enter Gender (M) or (F) :");
 					gender=sc.next().charAt(0);
-					System.out.println(gender=='F');
+					//System.out.println(gender=='F');
 					if(gender == 'F' || gender=='M')
 					{
 						correct = true;
@@ -128,7 +132,7 @@ public class Receiver_info {
 			while(!correct) {
 				try {
 					System.out.println("Enter Weight :");
-					weight=sc.nextDouble();
+					weight=sc.nextFloat();
 					if(weight<0)
 					{
 						throw new User_exception("You are Under Weight");
@@ -175,33 +179,23 @@ public class Receiver_info {
 				correct = false;
 				while(!correct) {
 					try {
-						System.out.println("Enter Hospital name where you are registered:\n1.Kothrud\n2.Katraj\n3.Hadapsar\n4.Kondhwa\n5.Swargate");
-
-						int ch = sc.nextInt();
-						switch(ch) {
-						case 1:
-							user_r = new Area("Kothrud",104);
-							break;
-						case 2:
-							user_r = new Area("Katraj",101);
-							break;
-
-						case 3:
-							user_r = new Area("Hadapsar",102);
-							break;
-						case 4:
-							user_r = new Area("Kondhwa",103);
-							break;
-						case 5:
-							user_r = new Area("Swargate",105);
-							break;
+						g.establish_connection();
+						g.extract_allhospital();
+						System.out.println("Enter Hospital name where you are registered:");
+						int i =0;
+						for(i=0;i<g.all_hospitals.size();i++) {
+							System.out.println((i+1)+". "+g.all_hospitals.get(i).getHospitalName());
 						}
-						if(user_r==null)
+						//System.out.println("Enter Hospital name where you are registered:\n1.Kothrud\n2.Katraj\n3.Hadapsar\n4.Kondhwa\n5.Swargate");
+						int ch = sc.nextInt();
+						if(ch>0 && ch<=i) {
+							correct = true;
+							hosp_name = g.all_hospitals.get(ch-1).getHospitalName();
+							hosp_code = g.all_hospitals.get(ch-1).getHospitalCode();
+						}
+						else
 						{
 							throw new User_exception("Enter valid option");
-						}
-						else {
-							correct = true;
 						}
 					} catch (User_exception e6) {
 						System.out.println(e6.getMessage());
@@ -239,16 +233,85 @@ public class Receiver_info {
 				}
 
 				/*
-				 * Receiver(String receiverName, String receiverBloodGroup, String birthDate, char gender, double weight,
-			Area areaOfReceiver, long contactNum, int emergency, boolean approvedReceiver)
+				 *public Receiver(String receiverName, String receiverBloodGroup, String birthDate, char gender, double weight,
+			String hosp, long contactNum, int emergency) {
 				 */
-				Receiver user=new Receiver(receiverName, receiverBloodGroup, birthDate, gender, weight, areaOfReceiver, contactNum,emergency,approvedReceiver);
+				
+				Receiver user=new Receiver(receiverName, receiverBloodGroup, birthDate, gender, weight, hosp_name, contactNum,emergency,organ);
+				g.insert_into_receiever(user, hosp_code);
 			}
 		}
 
 		if (!valid_age || !valid_w) {
 			System.out.println("Sorry you are not elligible ");
 		}
+	}
+	/*private String ReceiverName; 2
+	private String ReceiverBloodGroup; 3
+	private String birthDate; 4
+	private char gender; 5
+	private float weight; 6
+	private Area areaOfReceiver; 8
+	private long contactNum; 9
+	private int Emergency;12
+	private boolean approvedReceiver; 10
+	private String Organ;7
+	private String enrolled_hosp; 11*/
+	
+	/*public Receiver(String receiverName, String receiverBloodGroup, String birthDate, char gender, float weight,
+			String hosp, long contactNum, int emergency,String Org) {*/
+	
+	public static void showData(Receiver r) {
+		System.out.println("-----------------------------YOUR DETAILS-----------------------------------");
+		System.out.println("Receiver Name ::  \t\t"+r.getReceiverName());
+		System.out.println("Receiver Hospital :: \t\t"+r.gethospitalName());
+		System.out.println("Receiver Blood group :: \t\t"+r.getReceiverBloodGroup());
+		System.out.println("Receiver Contact Number \t\t"+r.getContactNum());
+		System.out.println("Allotted status :: \t\t"+r.isApprovedReceiver());
+		//add only donor name 
+	}
+	public Receiver  Login(String name,long mobno) {
+		General_info g=new General_info();
+		Connection con=g.establish_connection();
+		Receiver r=null;
+		try {
+			PreparedStatement ps=con.prepareStatement("select * from Receiver where receiverName=?");
+			ps.setString(1, name);
+			ResultSet rs=ps.executeQuery();
+			while(rs.next()) {
+				if(rs.getLong(9)==mobno) {
+					Area a=new Area(rs.getString(8),1);
+					r=new Receiver();
+					r.setReceiverName(rs.getString("receiverName"));
+					
+					r.sethospitalcode(rs.getInt("hospital_reg"));
+					r.setReceiverBloodGroup(rs.getString("receiverBloodGroup"));
+					r.setContactNum(rs.getLong("mobileNo"));
+					break;
+				}
+			}
+			if(r!=null) {
+				PreparedStatement ps1=con.prepareStatement("select hospitalName from Hospital where hospitalCode =?");
+				ps1.setInt(1,r.gethospitalcode() );
+				ResultSet rs1=ps1.executeQuery();
+				while(rs1.next()) {
+					r.sethospital(rs1.getString("hospitalName"));
+				}
+				showData(r);
+			}
+			if(r==null) {
+				System.out.println("Enter Correct Login credentials");
+			}
+		}
+		catch(Exception e) {
+			System.out.println("Exception "+e);
+		}
+		return r;
+	}
+    public static void main(String[] args) {
+		
+		Receiver_info di = new Receiver_info();
+		di.AcceptInfo();
 	}
 }
 

@@ -5,7 +5,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
-
+import java.util.*;
 public class Donor {
 	
 	
@@ -46,12 +46,12 @@ public class Donor {
 				 preparedStmt1.setString(1, d.getAreaOfDonor().getAreaName());
 				 */
 			     con=DriverManager.getConnection(DB_URL,USER,PASS);
-			     String query = "select * from Hospital where areaCode = ?";
+			     String query = "select * from Hospital where areaCode = ?;";
 			     PreparedStatement preparedStmt1;
 				 preparedStmt1 = con.prepareStatement(query);
 				 preparedStmt1.setInt(1, d.getAreaOfDonor().getAreaCode());
 				 
-				 ResultSet rs = preparedStmt1.executeQuery(query);
+				 ResultSet rs = preparedStmt1.executeQuery();
 
 				 while(rs.next()) {
 					 int h_code = rs.getInt("hospitalCode");
@@ -68,6 +68,7 @@ public class Donor {
 			     e.printStackTrace();
 			 }
 	   }
+	
 	public String getDonorName() {
 		return donorName;
 	}
@@ -100,6 +101,9 @@ public class Donor {
 	}
 	public Area getAreaOfDonor() {
 		return areaOfDonor;
+	}
+	public String getorgan() {
+		return this.organ;
 	}
 	public void setAreaOfDonor(Area areaOfDonor) {
 		this.areaOfDonor = areaOfDonor;

@@ -24,11 +24,12 @@ public class Donor_info {
 	boolean valid_age = false;
 	void AcceptInfo()
 	{
+		System.out.println("\n----------DONOR DETAILS-----------");
 	    boolean correct = false;
 	    while(!correct) {
 	    	try {
-				System.out.println("Enter Name :");
-				donarName=sc.next();
+				System.out.println("\nEnter your name :");
+				donarName=sc.nextLine();
 				if(donarName.isEmpty()) {
 					throw new User_exception("Please enter valid name");
 				}
@@ -112,7 +113,7 @@ public class Donor_info {
 				try {
 					System.out.println("Enter Gender (M) or (F) :");
 					gender=sc.next().charAt(0);
-					System.out.println(gender=='F');
+					
 					if(gender == 'F' || gender=='M')
 					{
 						correct = true;
@@ -234,6 +235,10 @@ public class Donor_info {
 					Area areaOfDonor, long contactNo)
 				 */
 				d = new Donor(donarName, donarBloodGroup ,birthDate,gender, weight,organ,user_a,contactNum);
+				d.area_hospitals(d);
+				
+				Matching(d);
+				
 			}
 		}
 		
@@ -243,13 +248,92 @@ public class Donor_info {
 		
 
 	}
+	 public void Matching(Donor d) {
+		 General_info g = new General_info();
+		 g.establish_connection();
+		 boolean flag = false;
+		 
+		 for(int i=0;i<d.areawise_hospitals.size();i++) {
+			 Hospital h = d.areawise_hospitals.get(i);
+			 g.arraylist_receivers(h);
+			 //System.out.println("h name"+h.getHospitalName());
+			 Iterator value =  h.addToQueue().iterator();
+			 while(!d.areawise_hospitals.get(i).pq.isEmpty()) {
+				 Receiver r = d.areawise_hospitals.get(i).pq.poll();
+				 //System.out.println("Receiver"+r.getReceiverName());
+				 if(r.getReceiverBloodGroup().equals(d.getDonorBloodGroup()) && r.getorganName().equals(d.getorgan())) {
+					 System.out.println("\n###Receiver Found!###");
+					 System.out.println("Hospital:"+h.getHospitalName());
+					 System.out.println("Donor :: "+ d.getDonorName());
+					 System.out.println("Matched with Receiver :: "+r.getReceiverName() );
+					 flag = true;
+					 break;
+				 }
+				 else {
+					 continue;
+				 }
+			 }
+			 /*while(value.hasNext()) {
+				 Receiver r = ((Receiver) value.next());
+				 System.out.println(r.getReceiverName());
+				 System.out.println("Blood grp :"+(r.getReceiverBloodGroup()));
+				 System.out.println("Organ :"+r.getorganName());
+				 if(r.getReceiverBloodGroup().equals(d.getDonorBloodGroup()) && r.getorganName().equals(d.getorgan())) {
+					 System.out.println("Matched");
+					 System.out.println("Donor :: "+ d.getDonorName());
+					 System.out.println("Receiver :: "+r.getReceiverName() );
+					 flag = true;
+					 break;
+				 }
+				 else {
+					 d.areawise_hospitals.get(i).pq.poll();
+				 }
+			 }*/
+			 if(flag) {
+				 break;
+			 }
+		 }
+		 if (flag==false) {
+			 g.extract_allhospital();
+
+			 for(int i=0;i<g.all_hospitals.size();i++) {
+				 
+				 Hospital h = g.all_hospitals.get(i);
+				 g.arraylist_receivers(h);
+				 System.out.println("h name"+h.getHospitalName());
+				 h.addToQueue();
+				 //Iterator value =  h.addToQueue().iterator();
+				 while(!g.all_hospitals.get(i).pq.isEmpty()) {
+					 Receiver r = g.all_hospitals.get(i).pq.poll();
+					 //System.out.println("Receiver"+r.getReceiverName());
+					 if(r.getReceiverBloodGroup().equals(d.getDonorBloodGroup()) && r.getorganName().equals(d.getorgan())) {
+						 System.out.println("\n###Receiver Found!###");
+						 System.out.println("Hospital:"+h.getHospitalName());
+						 System.out.println("Donor :: "+ d.getDonorName());
+						 System.out.println("Matched with Receiver :: "+r.getReceiverName() );
+						 flag = true;
+						 break;
+					 }
+					 else {
+						 continue;
+					 }
+				 }
+				 if(flag) {
+					 break;
+				 }
+			 }
+			 if (flag==false) {
+				 System.out.println("Sorry! No matched receiver found!");
+			 }
+		 }
+	 }
    
 	public static void main(String[] args) {
 		
 		Donor_info di = new Donor_info();
 		di.AcceptInfo();
-		System.out.println(di.d.getDonorName());
-		System.out.println(di.d.getAreaOfDonor());
+		//System.out.println(di.d.getDonorName());
+		//System.out.println(di.d.getAreaOfDonor());
 	}
 
 }
